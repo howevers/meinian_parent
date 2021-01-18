@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.myjava.dao.OrderSettingDao" >
+  <!--sql映射-->
+  <sql id="Base_Column_List" >
+    id, orderDate, number, reservations
+  </sql>
+
+  <!--根据日期判断数据库中是否有值-->
+  <select id="selectCountByOrderDate" parameterType="java.util.Date" resultType="integer">
+    select count(orderDate) from t_ordersetting where orderDate = #{date}
+  </select>
+
+  <!--根据map集合查找一个月内的数据-->
+  <select id="selectByDates" parameterType="map" resultType="ordersetting">
+    select * from t_ordersetting where orderDate between #{startDate} and #{endDate}
+  </select>
+
+  <!--修改可预约人数-->
+  <update id="updateByOrderDate" parameterType="orderSetting">
+    update t_ordersetting set number = #{number} where orderDate = #{orderDate}
+  </update>
+
+  <!--修改已预约人数-->
+  <update id="updateReservationsByOrderDate" parameterType="orderSetting">
+    update t_ordersetting set reservations = #{reservations} where orderDate = #{orderDate}
+  </update>
+
+<!--根据日期获取当天旅行信息-->
+  <select id="selectByDate" parameterType="date" resultType="ordersetting">
+    select
+    <include refid="Base_Column_List"/>
+    from t_ordersetting where orderDate = #{date}
+  </select>
+
+
+
+  <resultMap id="BaseResultMap" type="com.myjava.pojo.OrderSetting" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="orderDate" property="orderDate" jdbcType="DATE" />
+    <result column="number" property="number" jdbcType="INTEGER" />
+    <result column="reservations" property="reservations" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.myjava.pojo.OrderSettingExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from t_ordersetting
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_ordersetting
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_ordersetting
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.myjava.pojo.OrderSettingExample" >
+    delete from t_ordersetting
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.myjava.pojo.OrderSetting" >
+    insert into t_ordersetting (id, orderDate, number, 
+      reservations)
+    values (#{id,jdbcType=INTEGER}, #{orderDate,jdbcType=DATE}, #{number,jdbcType=INTEGER}, 
+      #{reservations,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.myjava.pojo.OrderSetting" >
+    insert into t_ordersetting
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="orderDate != null" >
+        orderDate,
+      </if>
+      <if test="number != null" >
+        number,
+      </if>
+      <if test="reservations != null" >
+        reservations,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="orderDate != null" >
+        #{orderDate,jdbcType=DATE},
+      </if>
+      <if test="number != null" >
+        #{number,jdbcType=INTEGER},
+      </if>
+      <if test="reservations != null" >
+        #{reservations,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.myjava.pojo.OrderSettingExample" resultType="java.lang.Integer" >
+    select count(*) from t_ordersetting
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update t_ordersetting
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.orderDate != null" >
+        orderDate = #{record.orderDate,jdbcType=DATE},
+      </if>
+      <if test="record.number != null" >
+        number = #{record.number,jdbcType=INTEGER},
+      </if>
+      <if test="record.reservations != null" >
+        reservations = #{record.reservations,jdbcType=INTEGER},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update t_ordersetting
+    set id = #{record.id,jdbcType=INTEGER},
+      orderDate = #{record.orderDate,jdbcType=DATE},
+      number = #{record.number,jdbcType=INTEGER},
+      reservations = #{record.reservations,jdbcType=INTEGER}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.myjava.pojo.OrderSetting" >
+    update t_ordersetting
+    <set >
+      <if test="orderDate != null" >
+        orderDate = #{orderDate,jdbcType=DATE},
+      </if>
+      <if test="number != null" >
+        number = #{number,jdbcType=INTEGER},
+      </if>
+      <if test="reservations != null" >
+        reservations = #{reservations,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.myjava.pojo.OrderSetting" >
+    update t_ordersetting
+    set orderDate = #{orderDate,jdbcType=DATE},
+      number = #{number,jdbcType=INTEGER},
+      reservations = #{reservations,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>
